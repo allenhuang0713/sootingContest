@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Help Jeremy three points shot!</title>
+    <script type="text/javascript" src="jquery.js"></script>
+    <link rel="icon" href="img\basketball-ball-solid.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        #mainDiv {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-top: -320px;
+            margin-left: -568.5px;
+        }
+
+        #backCan {
+            position: relative;
+        }
+
+        #pBar {
+            position: absolute;
+            top: 485px;
+            left: 986px;
+            width: 8.8%;
+        }
+
+        button {
+            position: absolute;
+            top: 520px;
+            left: 982px;
+        }
+
+        #letIn {
+            position: absolute;
+            left: 1066px;
+            top: 485px;
+            width: 0.85%;
+            opacity: 0.85;
+        }
+
+        .box {
+            position: fixed;
+            top: 50px;
+            left: 690px;
+            transition: top 3s ease-out;
+        }
+
+        body {
+            background-image: url('img/back1.jpg');
+            background-size: cover;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mainDiv">
+        <canvas id="myCanvas" width="1137" height="640" style="background: black"></canvas>
+        <div id="btn">
+            <button id="shotBtn" type="button" class="btn btn-primary btn-lg" onmousedown="processKeyDown(event)"
+                onmouseup="processKeyUp(event)" disabled="true">Shoot it!</button>
+        </div>
+        <div class="progress" id="pBar">
+            <div id="processBarInner" class="progress-bar progress-bar-striped bg-danger progress-bar-animated"
+                role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+        </div>
+        <div class="progress" id="letIn">
+            <div class="progress-bar progress-bar-striped bg-info progress-bar-animated" role="progressbar"
+                style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <div class="box" id="box">
+            <img src="img/start.png" width="25%" onclick="doAnimateHide();">
+        </div>
+        <audio id="bgMusic" src="img/If_I_Had_a_Chicken.mp3"></audio>
+    </div>
+
+
+    <script>
+        //1.1 取得畫布
+        var canvas = document.getElementById('myCanvas');
+        var ctx = canvas.getContext("2d");
+
+        var endingScrrenLin = new Image();
+        endingScrrenLin.src = 'img/o.62750.jpg';
+        var cry = new Image();
+        cry.src = 'img/LinC_1.png';
+        var sad = new Image();
+        sad.src = 'img/LinA.png';
+        var exciting = new Image();
+        exciting.src = 'img/LinB.png';
+        var goodjob = new Image();
+        goodjob.src = 'img/goodjob.png';
+
+
+        function crytAnimation() {
+            ctx.drawImage(cry, 0, 0);
+        }
+
+        function sadtAnimation() {
+            ctx.drawImage(sad, 0, 0);
+        }
+
+        function excitingtAnimation() {
+            ctx.drawImage(exciting, 0, 0);
+        }
+
+
+        //Start
+        function doAnimateShow() {
+            document.getElementById("box").style.top = "455px";
+        }
+
+        function doAnimateHide() {
+            document.getElementById("box").style.top = "-200px";
+            $("#shotBtn").attr('disabled', false)
+            audio.play();
+            ctx.clearRect(0, 0, 1137, 640);
+            drawBackGround()
+            displayScoreBoard()
+            drawBasketAndLin()
+            ballTotal = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+            score = 0;
+        }
+
+        //規則: 球數
+
+        var ballTotal = [];
+
+        function ballLoop() {
+            ballTotal.shift()
+        }
+
+        // var Btn = document.getElementById(shotBtn);
+        function endGame() {
+            if (ballTotal.length == 0) {
+                // ctx.fillStyle = '#ff0000';
+                // ctx.font = "50px sans-serif";
+                // ctx.fillText('The End!!!!' + score * 10 + '%', 500, 150);
+                endGameSound.play();
+                audio.pause();
+                console.log(ballTotal.length);
+                $("#shotBtn").attr('disabled', true)
+                doAnimateShow()
+                setTimeout(endScreen, 1800)
+            }
+        }
+
+        // var img = new Image();
+        // img.src = 'img/HAPPY.jpg';
+
+        // function drawBackImg() {
+        //     setTimeout(function () {
+        //         ctx.drawImage(img, 0, 0)
+        //     }, 0)
+        // }
+
+        //記分板
+        var score = 0;
+
+        function displayScoreBoard() {
+            ctx.fillStyle = "#353132";
+            ctx.fillRect(830, 50, 252, 110)
+            // ctx.strokeStyle = "white";
+            // ctx.lineWidth = 3;
+            // ctx.rect(830, 50, 250, 120);
+            // ctx.stroke();
+            ctx.fillStyle = '#ec1b24';
+            ctx.font = "25px sans-serif";
+            ctx.fillText('Remaning Shots: ' + ballTotal.length, 850, 90);
+            ctx.fillStyle = '#ec1b24';
+            ctx.font = "50px sans-serif";
+            ctx.fillText('FGM: ' + score, 875, 140);
+        }
+        // displayScoreBoard();
+
+        //1. 背景
+        function drawBackGround() {
+            //1.2 外場
+            ctx.beginPath();
+            ctx.moveTo(0, 375);
+            ctx.lineTo(257, 243);
+            ctx.lineTo(1137, 300);
+            ctx.lineTo(1137, 640);
+            ctx.lineTo(0, 640);
+            ctx.closePath();
+            ctx.fillStyle = "#b41b13";
+            ctx.fill();
+            //1.3 內場與邊線
+            ctx.beginPath();
+            ctx.moveTo(490, 290);
+            ctx.lineTo(1137, 340);
+            ctx.lineTo(1137, 640);
+            ctx.lineTo(855, 640);
+            ctx.lineTo(0, 514);
+            ctx.closePath();
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.fillStyle = "#e9bf85";
+            ctx.fill();
+            //1.4 三分內(四邊形)地板顏色
+            ctx.beginPath();
+            ctx.moveTo(471, 300);
+            ctx.lineTo(678, 316);
+            ctx.lineTo(332, 533);
+            ctx.lineTo(51, 491);
+            ctx.closePath();
+            ctx.fillStyle = "#f5d39a";
+            ctx.fill();
+            //1.5 三分線
+            //底角直線 左
+            ctx.beginPath();
+            ctx.moveTo(42, 493);
+            ctx.lineTo(333, 531);
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 2.7;
+            ctx.stroke();
+            //底角直線 右
+            ctx.beginPath();
+            ctx.moveTo(473, 298);
+            ctx.lineTo(679, 315);
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+            //半圓
+            ctx.beginPath();
+            ctx.moveTo(333, 531);
+            ctx.bezierCurveTo(1118, 580, 1167, 370, 679, 315);
+            ctx.fillStyle = "#f5d39a";
+            ctx.fill();
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 2
+            ctx.stroke();
+            // 1.6 油漆區與邊線
+            ctx.beginPath();
+            ctx.moveTo(369, 343);
+            ctx.lineTo(685, 375);
+            ctx.lineTo(577, 454);
+            ctx.lineTo(220, 413);
+            ctx.closePath();
+            ctx.fillStyle = "#b41b13";
+            ctx.fill();
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            //1.7 罰球區半圓
+            ctx.beginPath();
+            ctx.moveTo(593, 441);
+            ctx.bezierCurveTo(800, 456, 822, 394, 676, 381);
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 2
+            ctx.stroke();
+            //1.8 籃架
+            ctx.beginPath();
+            ctx.moveTo(233, 380);
+            ctx.lineTo(233, 200);
+            ctx.lineTo(363, 200);
+            ctx.lineCap = "round";
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = "white";
+            ctx.stroke();
+            //1.9 籃板外框白
+            ctx.beginPath();
+            ctx.moveTo(334, 147);
+            ctx.lineTo(387, 136);
+            ctx.lineTo(387, 200);
+            ctx.lineTo(334, 216);
+            ctx.closePath();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = "#eaf3f2";
+            ctx.stroke();
+            //1.10 籃板灰色防撞條
+            ctx.beginPath();
+            ctx.moveTo(330, 144);
+            ctx.lineTo(391, 132);
+            ctx.lineTo(391, 202);
+            ctx.lineTo(330, 220);
+            ctx.closePath();
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = "gray";
+            ctx.stroke();
+            //1.11 瞄準線
+            ctx.beginPath();
+            ctx.moveTo(354, 174);
+            ctx.lineTo(371, 170);
+            ctx.lineTo(372, 197);
+            ctx.lineTo(354, 201);
+            ctx.closePath();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = "#eaf3f2";
+            ctx.stroke();
+            //1.12 彈簧框根部2塊
+            ctx.beginPath();
+            ctx.fillStyle = "#c2462c";
+            ctx.fillRect(361, 194, 7, 6);
+            ctx.beginPath();
+            ctx.fillStyle = "#c2462c";
+            ctx.fillRect(364, 196, 7, 7);
+        }
+        drawBackGround()
+        //2. 籃框、網與書豪
+
+        var linJersey = {
+            x: 1050,
+            y: 365
+        };
+        var arm = {
+            x: 0,
+            y: 0
+        };
+
+        function drawBasketAndLin() {
+            //2.1 籃框*******
+            ctx.beginPath();
+            ctx.moveTo(369, 196);
+            ctx.lineTo(399, 196);
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = "#c2462c";
+            ctx.stroke();
+            //2.2 籃網
+            ctx.beginPath();
+            ctx.moveTo(369, 196);
+            ctx.lineTo(371, 229);
+            ctx.moveTo(397, 196);
+            ctx.lineTo(395, 229);
+            //左到右
+            ctx.moveTo(390, 196);
+            ctx.lineTo(396, 207);
+            ctx.moveTo(381.5, 196);
+            ctx.lineTo(396, 218);
+            ctx.moveTo(373, 196);
+            ctx.lineTo(392, 229);
+            ctx.moveTo(370, 204);
+            ctx.lineTo(387, 229);
+            ctx.moveTo(370, 214);
+            ctx.lineTo(379, 229);
+            //右到左
+            ctx.moveTo(378, 196);
+            ctx.lineTo(370, 207);
+            ctx.moveTo(386.5, 196);
+            ctx.lineTo(370, 218);
+            ctx.moveTo(393, 196);
+            ctx.lineTo(374, 229);
+            ctx.moveTo(396, 204);
+            ctx.lineTo(384, 229);
+            ctx.moveTo(396, 214);
+            ctx.lineTo(389, 229);
+            //畫線
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = "#eaf3f2";
+            ctx.stroke();
+            //2.3 手 right
+            ctx.beginPath();
+            ctx.moveTo(linJersey.x, linJersey.y + 3);
+            ctx.lineTo(linJersey.x + arm.x, linJersey.y + (arm.y + 65));
+            ctx.lineCap = "round";
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = "#dca181";
+            ctx.stroke();
+            //2.4 腳
+            ctx.beginPath();
+            ctx.moveTo(linJersey.x, linJersey.y + 70);
+            ctx.lineTo(linJersey.x, linJersey.y + 103);
+            ctx.lineCap = "round";
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = "#dca181";
+            ctx.stroke();
+            //褲子
+            ctx.beginPath();
+            ctx.moveTo(linJersey.x, linJersey.y + 50);
+            ctx.lineTo(linJersey.x, linJersey.y + 70);
+            ctx.lineCap = "round";
+            ctx.lineWidth = 10;
+            ctx.strokeStyle = "#b41b13";
+            ctx.stroke();
+            //上衣
+            ctx.beginPath();
+            ctx.moveTo(linJersey.x, linJersey.y);
+            ctx.lineTo(linJersey.x, linJersey.y + 50);
+            ctx.lineCap = "round";
+            ctx.lineWidth = 15;
+            ctx.strokeStyle = "#eaf3f2";
+            ctx.stroke();
+            //鞋子
+            ctx.beginPath();
+            ctx.moveTo(linJersey.x + 1, linJersey.y + 107);
+            ctx.lineTo(linJersey.x - 10, linJersey.y + 107);
+            ctx.lineCap = "round";
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = "#eaf3f2";
+            ctx.stroke();
+            //頭
+            ctx.beginPath();
+            ctx.arc(linJersey.x, linJersey.y - 28, 20, 0, 2 * Math.PI);
+            ctx.fillStyle = "#d19670";
+            ctx.fill();
+            //hair
+            ctx.beginPath();
+            ctx.moveTo(linJersey.x - 20, linJersey.y - 28);
+            ctx.bezierCurveTo(linJersey.x - 20, linJersey.y - 55, linJersey.x + 20, linJersey.y - 55, linJersey
+                .x +
+                20, linJersey.y - 28);
+            ctx.fillStyle = "black";
+            ctx.fill();
+            //手 left
+            ctx.beginPath();
+            ctx.moveTo(linJersey.x, linJersey.y + 3);
+            ctx.lineTo(linJersey.x + arm.x, linJersey.y + (arm.y + 65));
+            ctx.lineCap = "round";
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = "#dca181";
+            ctx.stroke();
+        }
+        drawBasketAndLin()
+
+        function endScreen() {
+            // var grd = ctx.createRadialGradient(290, 180, 900, 790, 330, 130);
+            // grd.addColorStop(0, "#fd0902");
+            // grd.addColorStop(1, "#980464");
+            // ctx.fillStyle = grd;
+            // ctx.fillRect(290, 180, 600, 300);
+            ctx.drawImage(endingScrrenLin, 280, 160);
+            ctx.drawImage(goodjob, 730, 160);
+            // ctx.fillStyle = '#c7ff00';
+            ctx.fillStyle = 'white';
+            ctx.font = "60px sans-serif";
+            ctx.fillText("Congrats!!!", 300, 245);
+            ctx.font = "30px sans-serif";
+            ctx.fillText("Thx for helping", 300, 300);
+            ctx.fillText("Jeremy 3points shot.", 300, 340);
+            ctx.font = "40px sans-serif";
+            ctx.fillText("Your FG is " + score * 10 + "%.", 300, 400);
+        }
+        // endScreen()
+
+
+        var timer; //bar
+        function show() {
+            if (document.getElementById("processBarInner").offsetWidth < 100) {
+                document.getElementById("processBarInner").style.width =
+                    document.getElementById("processBarInner").offsetWidth + 75 + "%";
+                // console.log(document.getElementById("processBarInner").offsetWidth); //查看每秒進度
+            } else {
+                document.getElementById("processBarInner").style.width = 100 + "%"; //超過100,則照100做
+                stop();
+            }
+        }
+
+        function processKeyDown(e) {
+            // ctx.clearRect(0, 0, 1137, 640);
+            start = (new Date()).getTime();
+            // console.log(start);
+            timer = window.setInterval(show, 100); //Bar條速度
+            armMove();
+            
+        }
+
+        function processKeyUp(e) {
+            delta = ((new Date()).getTime() - start);
+            start = 0;
+            // console.log(delta);
+
+            var Power = document.getElementById("processBarInner").offsetWidth
+            console.log(Power); //查看BAR條進度
+            //判斷與對應動畫
+            if (Power >= 81 && Power <= 90) {
+                moveBall()
+                // score++;
+                // console.log(score);
+                setTimeout(excitingtAnimation, 2000);
+            } else if (Power <= 79) {
+                moveBallPowerLess()
+                setTimeout(sadtAnimation, 2000);
+            } else {
+                moveBallOver()
+                setTimeout(crytAnimation, 2000);
+            }
+            window.clearInterval(timer); //關掉BAR
+            document.getElementById("processBarInner").style.width = 0 + "%"; //BAR條歸零
+
+
+            ballLoop()
+            console.log(ballTotal.length);
+            // endGame()
+        }
+
+        //音效
+        var bouncingSound = new Audio("img/casher.mp3");
+        var endGameSound = new Audio("img/child_cheer.mp3");
+        var ballSound = new Audio("img/ballsound.mp3");
+        var landingSound = new Audio("img/landing_sound.mp3");
+        var laughing = new Audio("img/Minions.mp3");
+        var laughing_2 = new Audio("img/Minions1.mp3");
+        var audio = document.getElementById("bgMusic");
+
+
+        //手的動畫
+        function armMove() {
+            for (let i = 1; i < 80; i++) {
+                setTimeout(function () {
+                    ctx.clearRect(0, 0, 1137, 640);
+                    drawBackGround();
+                    displayScoreBoard();
+                    arm.x += -0.5;
+                    arm.y += -1.5;
+                    drawBasketAndLin();
+                }, 3 * i);
+            }
+            arm.x = 0;
+            arm.y = 0;
+            linJersey.x = 1050;
+            linJersey.y = 365;
+        }
+
+
+
+        //球方程式
+        //圓周運動中心點
+        var center = {
+            x: 0,
+            y: 0
+        };
+        //圓周運動外圍點
+        var point = {
+            x: 300,
+            y: 1000
+        };
+        //每次動的圓周角度
+        var rotation = 1 * Math.PI / 180;
+
+        function moveBall() {
+            for (let i = 1; i < 120; i++) {
+                setTimeout(function () {
+                    center.x = 692;
+                    center.y = 610
+
+                    ctx.clearRect(0, 0, 1137, 640);
+                    // setTimeout(excitingtAnimation, 2000);
+                    drawBackGround()
+
+                    var x = center.x + (point.x - center.x) * Math.cos(rotation) - (point.y - center
+                            .y) *
+                        Math.sin(rotation);
+                    var y = center.y + (point.y - center.y) * Math.cos(rotation) + (point.x - center
+                            .x) *
+                        Math.sin(rotation);
+
+                    point.x = x;
+                    point.y = y;
+
+                    ctx.beginPath();
+                    ctx.arc(point.y, point.x, 14, 0, 2 * Math.PI);
+                    ctx.fillStyle = "#e62e00";
+                    ctx.fill();
+
+                    ctx.beginPath();
+                    ctx.arc(center.x, center.y, 5, 0, 2 * Math.PI);
+                    ctx.fillStyle = "#e62e00";
+                    // ctx.fill();
+                    drawBasketAndLin()
+                    displayScoreBoard()
+                    endGame()
+                    if (point.y < 395 && point.x > 187) {
+                        point.x += 1;
+                        point.y = 395;
+                        // console.log(point.x);    
+                    }
+
+                    //判斷得分
+                    if (point.x >= 195 && point.x <= 199 && point.y == 395) {
+                        score++;
+                        bouncingSound.play();
+                        ballSound.play();
+                        console.log(point.x);
+
+                    }
+
+                    // if (point.x + 14 > 380) {
+                    //     point.x += point.vx;
+                    //     point.vx *= 0.99;
+                    //     point.vx += .25;
+
+                    //     point.x = 380 - 14;
+                    //     point.vx = -Math.abs(point.vx);
+                    //     console.log(point.vx);
+                    //     point.x += point.vx;
+                    //     console.log(point.x);
+                    // }
+                    if (point.x + 14 > 380) {
+                        point.x = 380;
+                        point.y = -50;
+                        landingSound.play()
+                    }
+                }, 15 * i)
+
+            }
+
+            center.x = 0;
+            center.y = 0;
+            point.x = 300;
+            point.y = 1000;
+        }
+
+        function moveBallOver() {
+            for (let i = 1; i < 120; i++) {
+                setTimeout(function () {
+                    center.y = 500;
+                    center.x = 692;
+                    ctx.clearRect(0, 0, 1137, 640);
+                    // setTimeout(crytAnimation, 2000);
+                    drawBackGround()
+
+                    var x = center.x + (point.x - center.x) * Math.cos(rotation) - (point.y - center
+                            .y) *
+                        Math.sin(rotation);
+                    var y = center.y + (point.y - center.y) * Math.cos(rotation) + (point.x - center
+                            .x) *
+                        Math.sin(rotation);
+
+                    point.x = x;
+                    point.y = y;
+
+                    ctx.beginPath();
+                    ctx.arc(point.y, point.x, 14, 0, 2 * Math.PI);
+                    ctx.fillStyle = "#e62e00";
+                    ctx.fill();
+
+                    ctx.beginPath();
+                    ctx.arc(center.x, center.y, 5, 0, 2 * Math.PI);
+                    ctx.fillStyle = "#e62e00";
+                    // ctx.fill();
+                    drawBasketAndLin()
+                    displayScoreBoard()
+                    endGame()
+                    laughing_2.play()
+
+                    // laughing.play()
+                    // setTimeout(crytAnimation,1700)
+
+                    // if (point.y < 395 && point.x > 187) {
+                    //     point.x += 1;
+                    //     point.y = 395;
+                    // }
+                    // // if (point.x + 14 > 380) {
+                    // //     point.x += point.vx;
+                    // //     point.vx *= 0.99;
+                    // //     point.vx += .25;
+
+                    // //     point.x = 380 - 14;
+                    // //     point.vx = -Math.abs(point.vx);
+                    // //     console.log(point.vx);
+                    // //     point.x += point.vx;
+                    // //     console.log(point.x);
+                    // // }
+                    // if (point.x + 14 > 380) {
+                    //     point.x = 380;
+                    //     point.y = -50;
+                    // }
+                }, 15 * i)
+            }
+            center.x = 0;
+            center.y = 0;
+            point.x = 300;
+            point.y = 1000;
+
+
+        }
+
+        function moveBallPowerLess() {
+            for (let i = 1; i < 120; i++) {
+                setTimeout(function () {
+                    center.y = 680;
+                    center.x = 692;
+                    ctx.clearRect(0, 0, 1137, 640);
+                    // setTimeout(sadtAnimation, 1000);
+                    drawBackGround()
+
+                    var x = center.x + (point.x - center.x) * Math.cos(rotation) - (point.y - center
+                            .y) *
+                        Math.sin(rotation);
+                    var y = center.y + (point.y - center.y) * Math.cos(rotation) + (point.x - center
+                            .x) *
+                        Math.sin(rotation);
+
+                    point.x = x;
+                    point.y = y;
+
+                    ctx.beginPath();
+                    ctx.arc(point.y, point.x, 14, 0, 2 * Math.PI);
+                    ctx.fillStyle = "#e62e00";
+                    ctx.fill();
+
+                    ctx.beginPath();
+                    ctx.arc(center.x, center.y, 5, 0, 2 * Math.PI);
+                    ctx.fillStyle = "#e62e00";
+                    // ctx.fill();
+                    drawBasketAndLin()
+                    displayScoreBoard()
+                    endGame()
+
+                    if (point.x + 14 > 390) {
+                        point.x = 380;
+                        point.y = -50;
+                        landingSound.play();
+                        laughing.play();
+                    }
+                }, 15 * i)
+            }
+            center.x = 0;
+            center.y = 0;
+            point.x = 300;
+            point.y = 1000;
+        }
+    </script>
+
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+    </script>
+</body>
+
+</html>
